@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<title>W3.CSS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="css/lib/w3.css">
+<body >
+    <style>
+        body{
+            background: black;
+        }
+    </style>
+<button onclick="document.getElementById('popup-timer-chooser').style.display='block'" class="w3-btn">Set Timer</button>
+<div id="popup-timer-chooser" class="w3-modal" >
+    <div class="w3-modal-content w3-animate-top w3-card-8 popup-model-content" >
+        <header class="w3-container w3-dark-gray"> 
+            <span onclick="document.getElementById('popup-timer-chooser').style.display='none'" 
+            class="w3-closebtn">&times;</span>
+            <h2>Estimated Time to cook</h2>
+        </header>
+        <div class="w3-container">
+            <p>
+                <input class="w3-input w3-border" type="text" placeholder="Enter Message to send to Customer"/>
+            </p>                
+            <p>
+            <div class="w3-row" st>
+                <div class="w3-half">
+                    <input class="w3-input w3-border" type="number" placeholder="hours"/>
+                </div>
+                <div class="w3-half">
+                    <input class="w3-input w3-border" type="number" placeholder="minutes"/>
+                </div>
+            </div>
+        </p>
+        <p>
+        <div class="w3-row">
+            <button class="w3-btn w3-light-green w3-half">Confirm</button>
+            <button class="w3-btn w3-red w3-half">Cancel</button>  
+        </div>
+        </p>
+        </div>      
+    </div>
+ </div>
+
+</body>
+</html>
