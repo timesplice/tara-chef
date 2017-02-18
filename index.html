@@ -5,74 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="css/lib/w3.css">
     <link rel="stylesheet" href="css/progress_bar.css">
+    <link rel="stylesheet" href="css/order.css">
+    
     <style>
         html,body{
             height: 100%;           
             background: black;
         }     
-        .w3-third{
-            height:100%;
+        .custom-home-container{
+            height: 100%;           
+            background: black;
         }
     </style>
 </head>
 <body>
-  <div class="w3-row">
-    <div class="w3-quarter w3-border w3-border-white w3-text-white">
-        <div class="w3-center">   
-            <div id="progress_bar_r1_c1"></div>
-        </div>
-    </div>
-    <div class="w3-quarter w3-border w3-border-white ">
-        <div class="w3-center">   
-            <div id="progress_bar_r1_c2"></div>
-        </div>
-    </div>
-    <div class="w3-quarter w3-border w3-border-white ">
-        <div class="w3-center">   
-            <div id="progress_bar_r1_c3"></div>
-        </div>
-    </div>
-    <div class="w3-quarter w3-border w3-border-white ">
-        <div class="w3-center">   
-            <div id="progress_bar_r1_c4"></div>
-        </div>
-    </div>
+
+  <div class="w3-container custom-home-container" id="tables_home">    
   </div>
 
-  <div class="w3-row">
-    <div class="w3-quarter w3-border w3-border-white w3-text-white">
-        <div class="w3-center">   
-            <div id="progress_bar_r2_c1"></div>
+<div class="w3-container custom-order-container" id="order_home">
+    <div class="w3-row">
+    <div class="w3-third w3-container w3-center top-div-1" onclick="document.getElementById('popup-timer-chooser').style.display='block'">
+        <p>Set Estimated Time</p>
+    </div>
+    <div class="w3-third w3-container w3-green w3-center top-div-2">
+        <p>Order Completed</p>
+    </div>
+    <div class="w3-third w3-container w3-red w3-center top-div-3">    
+        <div class="w3-threequarter">
+            <p>Cancel order</p>
+        </div>
+        <div class="w3-quarter" onclick="$('#order_home').hide();$('#tables_home').show();">
+            <p>&#8592;</p>
+        </div>    
+    </div>
+    </div>
+
+    <div class="w3-container" id="order_items">
+    </div>
+
+    <!--timer popup model -->
+    <div id="popup-timer-chooser" class="w3-modal" >
+        <div class="w3-modal-content w3-animate-top w3-card-8 popup-model-content" >
+            <header class="w3-container w3-dark-gray"> 
+                <span onclick="document.getElementById('popup-timer-chooser').style.display='none'" 
+                class="w3-closebtn">&times;</span>
+                <h2>Estimated Time to cook</h2>
+            </header>
+            <div class="w3-container">
+                <form id="response_form">
+                    <p>
+                        <!--input class="w3-input w3-border" type="text" placeholder="Enter Message to send to Customer"/-->
+                        <select class="w3-select w3-border" id="chefResponseMsg" required>
+                                <option value="" disabled selected>choose Message</option>
+                                <option value="Thank you for choosing us">Thank you for choosing us</option>
+                                <option value="Thank you for your order">Thank you for your order</option>
+                                <option value="Have a good day">Have a good day</option>
+                        </select>
+                    </p>                
+                    <p>
+                    <div class="w3-row" st>
+                        <div class="w3-half">
+                            <!--input class="w3-input w3-border" type="number" placeholder="hours"/-->
+                            <select class="w3-select w3-border" id="chefEstimatedHours">
+                                <option value="0" disabled selected>choose Hours</option>
+                                <option value="1">1 Hour</option>
+                                <option value="2">2 Hour</option>
+                                <option value="3">3 Hour</option>
+                            </select>
+                        </div>
+                        <div class="w3-half">
+                            <!--input class="w3-input w3-border" type="number" placeholder="minutes"/-->
+                            <select class="w3-select w3-border" id="chefEstimatedMins">
+                                <option value="0" disabled selected>choose Minutes</option>
+                                <option value="15">15 Minutes</option>
+                                <option value="30">30 Minutes</option>
+                                <option value="45">45 minutes</option>
+                            </select>
+                        </div>
+                    </div>
+                </p>
+                <p>
+                <div class="w3-row">
+                    <input type="submit" class="w3-btn w3-light-green w3-half" value="Confirm"/>
+                    <input type="reset" class="w3-btn w3-red w3-half" value="Reset"/>  
+                </div>
+                </p>
+                </form>
+            </div>      
         </div>
     </div>
-    <div class="w3-quarter w3-border w3-border-white ">
-        <div class="w3-center">   
-            <div id="progress_bar_r2_c2"></div>
-        </div>
-    </div>
-    <div class="w3-quarter w3-border w3-border-white ">
-        <div class="w3-center">   
-            <div id="progress_bar_r2_c3"></div>
-        </div>
-    </div>
-    <div class="w3-quarter w3-border w3-border-white" onclick="goToOrderPage()" style="cursor: pointer">
-        <script>
-            function goToOrderPage(){
-                window.location.href = 'order.html';
-            }
-        </script>
-        <div class="w3-center">   
-            <div id="progress_bar_r2_c4"></div>
-        </div>
-    </div>
-  </div>
-  
+
+</div>
+
 <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.0/d3.js'></script>
 <script src='https://rawgit.com/pablomolnar/radial-progress-chart/master/dist/radial-progress-chart.js'></script>
 
+<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 
 <script src="js/progress_bar.js"></script>
+
+<script src="js/customFirebase.js"></script>
 
 
 </body>

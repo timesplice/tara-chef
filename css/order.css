@@ -1,0 +1,88 @@
+.custom-order-container{
+    width: 100%;
+    height: 100%;
+}
+.custom-card-4{
+    color: #fff!important;
+    background-color: rgba(97, 97, 97, 0.3)!important;
+    height: 100%;
+}
+
+.custom-quarter{
+    padding: 0.5em; 
+    height: 50vh;  
+}
+.card-image{
+    width: 100%;
+    height: 60%;
+    background-image: linear-gradient(rgba(255,255,255,0.5),rgba(255,255,255,0.5)), url(http://www.technobuffalo.com/wp-content/uploads/2014/04/fast-food.jpg);
+    /*background-image: linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)), url(http://www.technobuffalo.com/wp-content/uploads/2014/04/fast-food.jpg);*/
+    background-position: center;
+    background-size: cover;
+}
+.card-content{
+    height: 30%;
+}
+.card-title-count{
+    margin:0;
+    height: 20%;
+}
+.card-title{
+    float:left;
+    overflow:hidden;    
+}
+.card-count{
+    /*border: 1px solid #ccc!important;
+    background-color: rgb(29, 29, 29); */
+    background-color:#fff;
+    color:#000;
+    float:right;
+    overflow:hidden;
+    margin-top: 1.2em;
+}
+.card-text{
+    float:left;
+    height: 70%;
+}
+.card-button-section{
+    height: 50%;
+}
+.card-price{
+    border: none;
+    display: inline-block;
+    outline: 0;
+    padding: 6px 16px;
+    vertical-align: middle;
+    overflow: hidden;
+    text-decoration: none!important;
+    color: #fff;
+    background-color: rgb(29, 29, 29);    
+    text-align: center;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.green-tick{
+    position: relative;
+    width: 50%;  
+    top:20%;      
+}
+
+.top-div-1,.top-div-2,.top-div-3{
+    color: #080808!important;
+    font-weight: 600;
+    cursor: pointer;
+}
+.top-div-1{
+    background-color: #cec9e8!important;
+}
+.top-div-2{
+    background-color: #94bf96!important;
+}
+.top-div-3{
+    background-color: #dc8c86!important;
+}
+
+.popup-model-content{
+    width: 30%;
+}
