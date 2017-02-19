@@ -3,7 +3,7 @@ var firebase = require("firebase/app");
 var auth  = require("firebase/auth");
 var database = require("firebase/database");*/
 
-var hotelId =  "-KdHPI3vTwaVTsq4DeQK";
+var hotelId =  "hotel1";
 var presentHotelOrder=null;
 var presentUserOrder={};
 var presentOrderBill=0;
@@ -34,16 +34,32 @@ function changeChefResponseFormSubmit(){
         presentUserOrder['chefReply'] = msg; 
         presentUserOrder['bill']=presentOrderBill;
 
-        var newUserOrderKey = firebase.database().ref().child('userOrders/'+presentHotelOrder.user).push().key;
+        //var newUserOrderKey = firebase.database().ref().child('userOrders/'+presentHotelOrder.user).push().key;
           
-        firebase.database().ref('hotelOrders/'+presentHotelOrder.hotel +'/'+ newUserOrderKey).set(presentHotelOrder);
-        firebase.database().ref('userOrders/'+presentHotelOrder.user +'/'+ newUserOrderKey).set(presentUserOrder);
+        firebase.database().ref('hotelOrders/'+presentHotelOrder.hotel +'/'+ presentHotelOrder.order).update(presentHotelOrder);
+        firebase.database().ref('userOrders/'+presentHotelOrder.user +'/'+ presentHotelOrder.order).set(presentUserOrder);
         
         //adding progress bar to table
         //need to add progress bar, call loop, with all tables dict
-
+        startTimerForOrder(presentHotelOrder);
+        
         console.log('response sent to user');
+        
     });
+}
+
+function orderCompleted(){
+    console.log('order completer');
+
+    presentHotelOrder.delivered = true;
+    progress_bars_loop[presentHotelOrder.table] = false;
+    firebase.database().ref('hotelOrders/'+presentHotelOrder.hotel +'/'+ presentHotelOrder.order+'/delivered').set(true);
+    firebase.database().ref('userOrders/'+presentHotelOrder.user +'/'+ presentHotelOrder.order+'/delivered').set(true);
+        
+    //presentHotelOrder = null;
+
+    $('#order_home').hide();
+    $('#tables_home').show();
 }
 
 function init_firebase(){
@@ -55,8 +71,29 @@ function init_firebase(){
         messagingSenderId: "711981923636"
     };
     firebase.initializeApp(config);
-    //read_from_firebase();
-    read_tables_from_firebase();
+    firebase.auth().signOut();
+    firebase.auth().signInWithEmailAndPassword('a@a.com', 'aa11aa').catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // ...
+         // [START_EXCLUDE]
+          if (errorCode === 'auth/wrong-password') {
+            alert('Wrong password.');
+          } else {
+            alert(errorMessage);
+          }
+          console.log(error);          
+    });
+
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          console.log("user email:",user.email,user);
+          //read_from_firebase();
+          read_tables_from_firebase();
+    
+        }
+    });
     
 }
 
@@ -91,20 +128,16 @@ function orderAddedToHotel(order){
         //new order
         //setEstimated time     
         progress_bars[order.table].update(0);  
-        order.blinking=true; 
-        blink(order,'green');
+        //order.blinking=true; 
+        progress_bar_blink[order.table] = true;
+        blink(order.table,'green');
         $('#'+order.table).click(function(){
-            order.blinking = false
+            progress_bar_blink[order.table] = false
             openTableOrder(order);
         });
     }else{
         //existing
-        progress_bars[order.table].max = order.waitingTime;
-        var givenTime = new Date(order.timeStamp);
-        var now = new Date();
-        var diffMs = (now - givenTime);
-        var diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
-        progress_bars[order.table].update(diffMins);
+        startTimerForOrder(order);
     }
 }
 
@@ -125,11 +158,10 @@ function orderStatusChanged(order){
     }else{
         //nothing to do
         //simply adding this lines, i dnt know if this lines make any sense at any time
-        progress_bars[order.table].update(order.estimatedTime);
-        $('#'+order.table).css("background-color", 'black');
-        $('#'+order.table).click(function(){
-            //nothing to do
-        });
+        console.log('update estimated time');
+        //progress_bars[order.table].update(order.estimatedTime);
+        //$('#'+order.table).css("background-color", 'black');
+        
     }
 
 }
@@ -152,12 +184,12 @@ function openTableOrder(order){
     presentUserOrder = {};
     presentOrderBill=0;
 
-    presentUserOrder['hotel']=order.hotel;
-    presentUserOrder['table']=order.table;
-    presentUserOrder['user']=order.user;
-    presentUserOrder['order']=order.order;
-    presentUserOrder['payment']=order.payment;
-    presentUserOrder['delivered']=order.delivered;
+    presentUserOrder['hotel']=presentHotelOrder.hotel;
+    presentUserOrder['table']=presentHotelOrder.table;
+    presentUserOrder['user']=presentHotelOrder.user;
+    presentUserOrder['order']=presentHotelOrder.order;
+    presentUserOrder['payment']=presentHotelOrder.payment;
+    presentUserOrder['delivered']=presentHotelOrder.delivered;
     
     //hide tables
     //get all food item details
@@ -220,10 +252,35 @@ function toggleFoodSelection(elementId,url){
 }
 
 function startTimerForOrder(order){
-    progress_bars[order.table].max = order.estimatedTime;
-    progress_bars[order.table].min = 0;
-    order.table
+    $('#'+order.table).click(function(){
+            progress_bar_blink[order.table] = false
+            openTableOrder(order);
+    });
 
+    if(order.delivered == true){
+        $('#'+order.table).css("background-color", 'orange');
+        return;
+    }
+
+    //progress_bars[order.table].max = order.waitingTime;
+    //progress_bars[order.table].min = 0;    
+    
+    console.log('updated progress bar:',order.table, progress_bars[order.table]);
+
+    progress_bars_loop[order.table] = true;
+
+    var givenTime = new Date(order.timeStamp);
+    var now = new Date();
+    var diffMs = (now - givenTime);
+    var elapsedTime = parseInt(Math.round(((diffMs % 86400000) % 3600000) / 60000));
+
+    console.log('elapsed time:'+elapsedTime);
+    console.log('waiting time:'+order.waitingTime);
+
+    var progressPercentage = (elapsedTime*1.0/order.waitingTime)*100;
+    progress_bars[order.table].update(progressPercentage);            
+        
+    loop_progress(order.table,elapsedTime,order.waitingTime);    
 }
 
 function send_response_to_user(userId,messageToUser,estimatedTime,callback){
@@ -245,7 +302,7 @@ function read_tables_from_firebase(){
 	firebase.database().ref(path).once('value').then(function(snapshot) {
 		if(snapshot!=null){
 			//update_template_from_firebase( snapshot.val().data );
-            console.log("Tables:",snapshot);
+            //console.log("Tables:",snapshot);
             snapshot.forEach(function(childSnapshot) {
                 var childKey = childSnapshot.key;
                 var childData = childSnapshot.val();
@@ -256,11 +313,12 @@ function read_tables_from_firebase(){
 
     addFireBaseEventListeners();    
 }
-
 function add_table_to_hotel(tableId,table){
+    console.log('table:'+tableId, table);
     create_progress_bar(tableId);
     progress_bars[tableId]=(add_progress('#'+tableId,0,0,table.tableName));
 }
+
 function create_progress_bar(tableId){
     var custom_html='<div class="w3-quarter w3-border w3-border-white w3-text-white">'+
                         '<div class="w3-center">'+   
@@ -268,6 +326,7 @@ function create_progress_bar(tableId){
                         '</div>'+
                     '</div>';
     //$('.custom-home-container').append(custom_html);
-    document.getElementById('tables_home').innerHTML=document.getElementById('tables_home').innerHTML+custom_html;
+    //document.getElementById('tables_home').innerHTML=document.getElementById('tables_home').innerHTML+custom_html;
+    $('#tables_home').append(custom_html);
 }
 
