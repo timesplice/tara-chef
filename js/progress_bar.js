@@ -95,7 +95,7 @@ function getRandom(min, max) {
      //console.log('updated bar:',progress_bars[tableId],progress_bars[tableId].options.series[0]);
      setTimeout(function() {
        loop_progress(tableId,elapsedTime+1,estimatedTime)
-     }, 1000)
+   }, 1000*60);
    }
  }
 
