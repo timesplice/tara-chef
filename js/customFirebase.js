@@ -8,6 +8,11 @@ var presentHotelOrder=null;
 var presentUserOrder={};
 var presentOrderBill=0;
 
+var orderNames=[];
+var playOrderVoiceFlag=false;
+
+var speak = new SpeechSynthesisUtterance();
+
 $(document).ready(function(){
 	$('#order_home').hide();
     init_firebase();
@@ -135,6 +140,9 @@ function orderAddedToHotel(order){
             progress_bar_blink[order.table] = false
             openTableOrder(order);
         });
+
+        speechSynthesis.speak(new SpeechSynthesisUtterance("Hello, You got an order from "+order.table));
+
     }else{
         //existing
         startTimerForOrder(order);
@@ -146,22 +154,29 @@ function orderStatusChanged(order){
         //remove
         progress_bars[order.table].update(order.estimatedTime);
         $('#'+order.table).css("background-color", 'black');
+        setTimeout(function(){
+            $('#'+order.table).css("background-color", 'black');
+        },1000);
         $('#'+order.table).click(function(){
             //nothing to do
         });
+
+        speechSynthesis.speak(new SpeechSynthesisUtterance("Payment done from "+order.table)); 
+
         return;
     }else if(order.delivered == true){
         //waiting for payment
         progress_bars[order.table].update(order.estimatedTime);
         $('#'+order.table).css("background-color", 'orange');
+        setTimeout(function(){
+            $('#'+order.table).css("background-color", 'orange');
+        },1000);
         return;
-    }else{
-        //nothing to do
-        //simply adding this lines, i dnt know if this lines make any sense at any time
-        console.log('update estimated time');
-        //progress_bars[order.table].update(order.estimatedTime);
-        //$('#'+order.table).css("background-color", 'black');
-        
+    }else if(payment == true){
+        $('#'+order.table).css("background-color", 'black');        
+        setTimeout(function(){
+            $('#'+order.table).css("background-color", 'black');
+        },1000);
     }
 
 }
@@ -169,6 +184,9 @@ function orderStatusChanged(order){
 function orderRemovedFromHotel(order){
     progress_bars[order.table].update(order.estimatedTime);
     $('#'+order.table).css("background-color", 'black');
+    setTimeout(function(){
+            $('#'+order.table).css("background-color", 'black');
+        },1000);
     $('#'+order.table).click(function(){
        //nothing to do
     });
@@ -191,6 +209,7 @@ function openTableOrder(order){
     presentUserOrder['payment']=presentHotelOrder.payment;
     presentUserOrder['delivered']=presentHotelOrder.delivered;
     
+    orderedItems = [];
     //hide tables
     //get all food item details
     for(foodId in order.orderedItems){
@@ -209,8 +228,25 @@ function getFoodDetails(order,foodId,foodCnt){
             var foodData = snapshot.val();
             console.log('FOOD',foodData);
             addFoodToUI(order,foodCnt,foodKey,foodData);  
+            orderNames.push(foodCnt+" "+foodData.name);
+            
+            if(order !=null && order.orderedItems!=null &&  Object.keys(order.orderedItems).length == orderNames.length){
+                    speechSynthesis.speak(new SpeechSynthesisUtterance("Do you want me to read Order"));
+                    playOrderVoiceFlag=true;
+                    recognition.start();
+
+            }
+
         }
 	});
+}
+
+function playVoice(){
+    if(playOrderVoiceFlag){
+        for(i=0;i<orderNames.length;i++)
+            speechSynthesis.speak(new SpeechSynthesisUtterance(orderNames[i]));
+    }
+    playOrderVoiceFlag = false;
 }
 
 function addFoodToUI(order,foodCnt,foodKey,food){
@@ -259,6 +295,9 @@ function startTimerForOrder(order){
 
     if(order.delivered == true){
         $('#'+order.table).css("background-color", 'orange');
+        setTimeout(function(){
+            $('#'+order.table).css("background-color", 'orange');
+        },1000);
         return;
     }
 
@@ -280,7 +319,7 @@ function startTimerForOrder(order){
     var progressPercentage = (elapsedTime*1.0/order.waitingTime)*100;
     progress_bars[order.table].update(progressPercentage);            
         
-    loop_progress(order.table,elapsedTime,order.waitingTime);    
+    loop_progress(order.table,elapsedTime,order.waitingTime,false);    
 }
 
 function send_response_to_user(userId,messageToUser,estimatedTime,callback){

@@ -18,7 +18,10 @@ function add_progress(progress_bar_id,progress_status,estimated_time,tableName){
     center: {
         content: [function(value) {            
         //if(100-value > 0)
+        if((100-value) >= 0 )
             return (100-value) + '% time left';
+        else
+            return "0% time left";
         //else
           //  return "";
         }, ' '+tableName]
@@ -59,21 +62,26 @@ function getRandom(min, max) {
    return Math.random() * (max - min) + min;
  }
 
- function loop_progress(tableId,elapsedTime,estimatedTime) {
+ function loop_progress(tableId,elapsedTime,estimatedTime,voicePlayed) {
      var progressPercentage = parseInt((elapsedTime*1.0/estimatedTime)*100);
      console.log('loop table:'+tableId);
      console.log('loop elapsed time:'+elapsedTime);
      console.log('loop waiting time:'+estimatedTime);
      console.log('progressPercentage:'+progressPercentage)
 
+     
      if(progressPercentage<50){
         progress_bars[tableId].options.series[0].color.solid = '#ffffff';
      }else if(progressPercentage<75){
         progress_bars[tableId].options.series[0].color.solid = '#e67e22';
      }else if(progressPercentage<90){
         progress_bars[tableId].options.series[0].color.solid = '#e74c3c';
-     }else if(progressPercentage>=90){
-        progress_bars[tableId].options.series[0].color.solid = '#ff0000';
+     }else if(progressPercentage >= 90){
+         console.log(voicePlayed);
+         if(voicePlayed == false){
+            speechSynthesis.speak(new SpeechSynthesisUtterance("Hurry, Its time to deliver food to "+tableId)); 
+            voicePlayed = true;
+         }
      }
      //console.log('before update:',progress_bars[tableId],progress_bars[tableId].options.series[0]);
      
@@ -94,7 +102,7 @@ function getRandom(min, max) {
    } else {
      //console.log('updated bar:',progress_bars[tableId],progress_bars[tableId].options.series[0]);
      setTimeout(function() {
-       loop_progress(tableId,elapsedTime+1,estimatedTime)
+       loop_progress(tableId,elapsedTime+1,estimatedTime,voicePlayed)
      }, 1000)
    }
  }
