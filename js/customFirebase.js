@@ -162,10 +162,11 @@ function orderStatusChanged(order){
         });
 
         speechSynthesis.speak(new SpeechSynthesisUtterance("Payment done from "+order.table)); 
-
+        progress_bars_loop[order.table] = false;
         return;
     }else if(order.delivered == true){
         //waiting for payment
+        progress_bars_loop[order.table] = false;
         progress_bars[order.table].update(order.estimatedTime);
         $('#'+order.table).css("background-color", 'orange');
         setTimeout(function(){

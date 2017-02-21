@@ -102,8 +102,9 @@ function getRandom(min, max) {
    } else {
      //console.log('updated bar:',progress_bars[tableId],progress_bars[tableId].options.series[0]);
      setTimeout(function() {
-       loop_progress(tableId,elapsedTime+1,estimatedTime,voicePlayed)
-     }, 1000)
+       loop_progress(tableId,elapsedTime+1,estimatedTime)
+     }, 1000*60);
+
    }
  }
 
